@@ -1,0 +1,22 @@
+---
+sudo: required
+language: python
+all_branches: true
+python:
+  - 3.7
+before_install:
+  - sudo apt-get -qq update
+install:
+  - pip install molecule
+script:
+  - cd roles/ansible-role-nginx && molecule test
+  # - molecule lint
+  # - molecule destroy
+  # - molecule dependency
+  # - molecule syntax
+  # - molecule converge
+  # - travis_wait 20 molecule idempotence
+  # - molecule side-effect
+  # - molecule verify
+  # - molecule destroy
+...
