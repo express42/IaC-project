@@ -1,0 +1,14 @@
+[Unit]
+Description=Puma HTTP Server
+After=network.target
+
+[Service]
+Type=simple
+User={{ host_user }}
+WorkingDirectory=/home/ubuntu/reddit/comment
+EnvironmentFile=/home/ubuntu/reddit/comment/comment_config
+ExecStart=/bin/bash -lc 'puma -b tcp://{{ COMMENT_SERVICE_HOST }}:{{ COMMENT_SERVICE_PORT }}'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

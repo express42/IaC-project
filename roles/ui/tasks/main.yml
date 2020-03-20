@@ -1,0 +1,60 @@
+---
+- name: Clone repo
+  git:
+    repo: https://github.com/express42/reddit.git
+        # не забудьте подставить своего user
+    dest: /home/ubuntu/reddit
+    version: microservices
+
+- name: apt install ruby and bundler
+  apt:
+    name: ['ruby-full', 'build-essential', 'ruby-bundler']
+    state: present
+    update_cache: yes
+
+- name: install bundler
+  gem:
+    name: bundler
+    state: latest
+
+- name: Bundle install
+  bundler:
+    state: present
+    chdir: /home/ubuntu/reddit/ui
+
+- name: print puma version
+  command: puma -V
+  register: puma_v
+
+- name: print output
+  debug:
+    var: puma_v
+
+- name: gem install puma -v 3.12.0
+  gem:
+    name: puma
+    version: 3.12.0
+    state: present
+    force: true
+  when: puma_v.stdout != 'puma version 3.12.0'
+
+
+- name: Add reddit_config
+  template:
+    src: ui_config.j2
+    dest: /home/ubuntu/reddit/ui/ui_config
+
+- name: Add unit file for ui
+  template:
+        # Подставляем свой сервис
+    src: ui.service.j2
+    dest: /etc/systemd/system/ui.service
+  notify: reload ui
+
+- name: Start service and enabled at boot
+  systemd:
+    state: started
+    name: ui
+    enabled: true
+    daemon_reload: true
+...

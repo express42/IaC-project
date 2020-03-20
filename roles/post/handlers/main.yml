@@ -1,0 +1,2 @@
+- name: reload post
+  systemd: name=post state=restarted daemon_reload=true

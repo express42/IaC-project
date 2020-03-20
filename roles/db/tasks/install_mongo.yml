@@ -1,0 +1,29 @@
+- name: MongoDB - Add pgp key
+  apt_key:
+    url: https://www.mongodb.org/static/pgp/server-4.0.asc
+    state: present
+
+- name: MongoDB - Add repository
+  apt_repository:
+    filename: '/etc/apt/sources.list.d/mongodb.list'
+    repo: "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse"
+    state: present
+    # update_cache: true
+
+- name: MongoDB - Install MongoDB
+  apt:
+    name: mongodb-org
+    state: present
+    # allow_unauthenticated: true
+    update_cache: true
+  # loop:
+  #   - mongodb-org
+    # - mongodb-org-mongos
+    # - mongodb-org-server
+    # - mongodb-org-shell
+
+- name: MongoDB - Running state
+  systemd:
+    name: mongod
+    state: started
+    enabled: true

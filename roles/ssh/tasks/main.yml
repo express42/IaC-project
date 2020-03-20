@@ -1,0 +1,20 @@
+---
+# - name: Ensure OpenSSH required version is presented
+#   apt:
+#     name: "{{ item }}{% if ssh_version is defined %}-{{ ssh_version }}{% endif %}"
+#     state: present
+#     update_cache: true
+#   loop:
+#     # - openssh
+#     # - openssh-clients
+#     - openssh-server
+
+# - name: Create /etc/ssh directory
+#   file: path=/etc/ssh state=directory mode=0755
+
+- name: Generate sshd_config file
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+  notify: restart ssh
+...

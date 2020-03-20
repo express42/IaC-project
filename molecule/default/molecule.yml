@@ -1,0 +1,123 @@
+---
+dependency:
+  name: galaxy
+  options:
+    role-file: requirements.yml
+    roles-path: .imported_roles
+    force: false
+
+lint:
+  name: yamllint
+  options:
+    config-file: molecule/resources/yamllint.conf
+    s: false
+
+driver:
+  name: vagrant
+  ssh_connection_options:
+    - '-o ControlPath=~/.ansible/cp/%r@%h-%p'
+  provider:
+    name: virtualbox
+    type: virtualbox
+    options:
+      memory: 8192
+      cpus: 3
+
+platforms:
+  # - name: post
+  #   box: "cbednarski/ubuntu-1604"
+  #   interfaces:
+  #     - auto_config: false
+  #       network_name: private_network
+  #       type: dhcp
+  #     - auto_config: true
+  #       ip: 192.168.11.1
+  #       network_name: private_network
+  #       type: static
+
+
+  # - name: comment
+  #   box: "cbednarski/ubuntu-1604"
+  #   interfaces:
+  #     - auto_config: false
+  #       network_name: private_network
+  #       type: dhcp
+  #     - auto_config: true
+  #       ip: 192.168.11.2
+  #       network_name: private_network
+  #       type: static
+
+ 
+  # - name: db
+  #   box: "cbednarski/ubuntu-1604"
+  #   interfaces:
+  #     - auto_config: false
+  #       network_name: private_network
+  #       type: dhcp
+  #     - auto_config: true
+  #       ip: 192.168.11.3
+  #       network_name: private_network
+  #       type: static
+
+  - name: reddit-microservices-1vm
+    box: "cbednarski/ubuntu-1604"
+    groups:
+      - all
+    interfaces:
+      - auto_config: true
+        network_name: private_network
+        type: dhcp
+      # - auto_config: true
+      #   ip: 192.168.11.4
+      #   network_name: private_network
+      #   type: static
+    instance_raw_config_args:
+      - "vm.network 'forwarded_port', guest: 9292, host: 9292, protocol:'tcp'"
+
+provisioner:
+  name: ansible
+  log: true
+  options:
+    vvv: false
+  connection_options:
+    ansible_ssh_user: vagrant
+  inventory:
+    links:
+      group_vars: ../resources/group_vars/
+  env:
+    ANSIBLE_ROLES_PATH: ../../roles/:../../.imported_roles/
+  playbooks:
+    converge: playbook.yml
+    prepare: prepare.yml
+  lint:
+    name: ansible-lint
+    options:
+      exclude:
+        - .imported_roles/
+        - ../
+
+scenario:
+  name: default
+  test_sequence:
+    # - lint
+    - dependency
+    - cleanup
+    - destroy
+    - syntax
+    - create
+    - prepare
+    - converge
+    # - idempotence
+    - side_effect
+    - verify
+    - cleanup
+    - destroy
+
+verifier:
+  name: testinfra
+  enabled: true
+  directory: ../resources/tests
+  # additional_files_or_dirs:
+  #   - some_path
+  lint:
+    name: flake8

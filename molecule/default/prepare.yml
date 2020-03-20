@@ -1,0 +1,14 @@
+---
+- name: Prepare
+  hosts: all
+  become: true
+  gather_facts: true
+  roles:
+    - ssh
+  tasks:
+    - name: Install git
+      apt:
+        name: git
+        state: present
+        update_cache: true
+...
